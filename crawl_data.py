@@ -1,11 +1,13 @@
 import os
+import json
+from dotenv import load_dotenv
 
 import requests
 from bs4 import BeautifulSoup
 
-import json
-
-HEADER = {"User-Agent": "FiscalQuery giadat2359@gmail.com"}
+load_dotenv()
+user_agent = os.getenv("SEC_EDGAR_USER_AGENT")
+HEADER = {"User-Agent": user_agent}
 
 
 def get_file(cik: str, form_type="10-K"):
