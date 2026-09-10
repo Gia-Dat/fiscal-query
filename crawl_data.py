@@ -1,65 +1,36 @@
 import os
-import json
-from dotenv import load_dotenv
-
 import requests
-from bs4 import BeautifulSoup
-
-load_dotenv()
-user_agent = os.getenv("SEC_EDGAR_USER_AGENT")
-HEADER = {"User-Agent": user_agent}
+from config import Config
 
 
-def get_file(cik: str, form_type="10-K"):
+def crawl_file(company_name="Shopify", form_type="10-K"):
+    cik = Config.CIKS.get(company_name)
+    HEADER = {"User-Agent": Config.SEC_USER_AGENT}
+
     URL = f"https://data.sec.gov/submissions/CIK{cik}.json"
     re = requests.get(URL, headers=HEADER)
-    # print(re.status_code)
+    print(re.status_code)
 
-    company_name = re.json().get("name", "Unknown")
     recent = re.json()['filings']['recent']
-    for key in recent.keys():
-        print(key)
+    # for key in recent.keys():
+    #     print(key)
     idx = recent["form"].index(form_type)
     # print(idx)
     acc_num = recent["accessionNumber"][idx].replace("-", "")
     doc = recent["primaryDocument"][idx]
     print(acc_num, doc)
-    report_date = recent["reportDate"][idx]
-    report_year = int(report_date.split("-")[0])
 
     file_url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{acc_num}/{doc}"
-    doc_text = requests.get(file_url, headers=HEADER).text.encode(
-        "utf-8", errors="ignore")
+    doc_text = requests.get(file_url, headers=HEADER).text
 
-    soup = BeautifulSoup(doc_text, "html.parser")
-    # Remove unused tags
-    for tag in soup(["ix:header", "style", "script", "head"]):
-        tag.decompose()
-
-    clean_text = soup.get_text(separator="\n", strip=True)
-    # print(clean_text)
-
-    os.makedirs("data/", exist_ok=True)
-    jsonl_path = f"data/{company_name.lower()}.jsonl"
-
-    record = {
-        "company": company_name,
-        "cik": cik,
-        "form": form_type,
-        "year": report_year,
-        "doc_name": doc,
-        "char_count": len(clean_text),
-        "content": clean_text,
-    }
-
-    with open(jsonl_path, "w", encoding="utf-8") as f:
-        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    with open(f"data/{company_name.lower()}_raw.html", "w", encoding="utf-8") as f:
+        f.write(doc_text)
 
 
-def main():
-    get_file("0001594805")
-    print("Done")
+# def main():
+#     crawl_file()
+#     print("Done")
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
