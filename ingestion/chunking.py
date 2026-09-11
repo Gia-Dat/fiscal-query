@@ -3,6 +3,7 @@ from typing import List, Dict, Any
 
 from bs4 import BeautifulSoup
 
+import tiktoken
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # from clean_data import clean_data

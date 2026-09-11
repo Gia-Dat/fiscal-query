@@ -3,7 +3,7 @@ from openai import OpenAI
 from config import Config
 
 
-def generate_financial_answer(query: str, context_chunks: List[Dict[str, Any]], stream: bool = True) -> str:
+def generating(query: str, context_chunks: List[Dict[str, Any]], stream: bool = True) -> str:
     client = OpenAI(api_key=Config.OPENAI_API_KEY)
 
     system_prompt = (
