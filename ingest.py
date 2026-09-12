@@ -103,15 +103,3 @@ def build_vector_store(documents, collection_name="sec_filings", persist_dir="./
 
     print(f"Indexed {len(documents)} chunks to ChromaDB at '{persist_dir}'.")
     return collection
-
-
-# def main():
-#     company = "Shopify"
-#     print(f"Starting ingestion pipeline for {company}...")
-#     documents = load_sec_data(company)
-#     print(f"Generated {len(documents)} document chunks.")
-#     build_vector_store(documents)
-
-
-# if __name__ == "__main__":
-#     main()
