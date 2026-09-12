@@ -8,7 +8,7 @@ from config import Config
 from extract_item import Extract
 
 
-def crawl_file(company_name: str, form_type="10-K"):
+def crawl_file(company_name, form_type="10-K"):
     os.makedirs("data", exist_ok=True)
     raw_file_path = f"data/{company_name.lower()}_raw.html"
 
@@ -39,7 +39,7 @@ def crawl_file(company_name: str, form_type="10-K"):
     return raw_file_path
 
 
-def load_sec_data(company_name: str):
+def load_sec_data(company_name):
     raw_path = crawl_file(company_name)
     extractor = Extract(raw_path)
 
@@ -81,7 +81,7 @@ def load_sec_data(company_name: str):
     return documents
 
 
-def build_vector_store(documents: list[dict], collection_name="sec_filings", persist_dir="./chroma_db"):
+def build_vector_store(documents, collection_name="sec_filings", persist_dir="./chroma_db"):
     client = chromadb.PersistentClient(path=persist_dir)
     collection = client.get_or_create_collection(name=collection_name)
 
