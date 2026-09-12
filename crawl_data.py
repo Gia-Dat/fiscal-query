@@ -9,7 +9,7 @@ def crawl_file(company_name="Shopify", form_type="10-K"):
 
     URL = f"https://data.sec.gov/submissions/CIK{cik}.json"
     re = requests.get(URL, headers=HEADER)
-    print(re.status_code)
+    # print(re.status_code)
 
     recent = re.json()['filings']['recent']
     # for key in recent.keys():
@@ -18,7 +18,7 @@ def crawl_file(company_name="Shopify", form_type="10-K"):
     # print(idx)
     acc_num = recent["accessionNumber"][idx].replace("-", "")
     doc = recent["primaryDocument"][idx]
-    print(acc_num, doc)
+    # print(acc_num, doc)
 
     file_url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{acc_num}/{doc}"
     doc_text = requests.get(file_url, headers=HEADER).text
