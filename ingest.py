@@ -8,7 +8,7 @@ from config import Config
 from extract_item import Extract
 
 
-def crawl_file(company_name, form_type="10-K"):
+def crawl_file(company_name="Shopify", form_type="10-K"):
     os.makedirs("data", exist_ok=True)
     raw_file_path = f"data/{company_name.lower()}_raw.html"
 
@@ -16,25 +16,27 @@ def crawl_file(company_name, form_type="10-K"):
         return raw_file_path
 
     cik = Config.CIKS.get(company_name)
-    headers = {"User-Agent": Config.SEC_USER_AGENT}
+    HEADER = {"User-Agent": Config.SEC_USER_AGENT}
+    # print(cik)
 
-    # Fetch company submissions metadata
-    url = f"https://data.sec.gov/submissions/CIK{cik}.json"
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
+    URL = f"https://data.sec.gov/submissions/CIK{cik}.json"
+    re = requests.get(URL, headers=HEADER)
+    # print(re.status_code)
 
-    recent_filings = response.json()["filings"]["recent"]
-    idx = recent_filings["form"].index(form_type)
-    accession_number = recent_filings["accessionNumber"][idx].replace("-", "")
-    primary_doc = recent_filings["primaryDocument"][idx]
+    recent = re.json()['filings']['recent']
+    # for key in recent.keys():
+    #     print(key)
+    idx = recent["form"].index(form_type)
+    # print(idx)
+    acc_num = recent["accessionNumber"][idx].replace("-", "")
+    doc = recent["primaryDocument"][idx]
+    # print(acc_num, doc)
 
-    # Fetch primary document content
-    doc_url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{accession_number}/{primary_doc}"
-    doc_response = requests.get(doc_url, headers=headers)
-    doc_response.raise_for_status()
+    file_url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{acc_num}/{doc}"
+    doc_text = requests.get(file_url, headers=HEADER).text
 
     with open(raw_file_path, "w", encoding="utf-8") as f:
-        f.write(doc_response.text)
+        f.write(doc_text)
 
     return raw_file_path
 
@@ -81,7 +83,7 @@ def load_sec_data(company_name):
     return documents
 
 
-def build_vector_store(documents, collection_name="sec_filings", persist_dir="./chroma_db"):
+def build_vector_store(documents, collection_name="sec_filings", persist_dir="./data/chroma_db"):
     client = chromadb.PersistentClient(path=persist_dir)
     collection = client.get_or_create_collection(name=collection_name)
 
