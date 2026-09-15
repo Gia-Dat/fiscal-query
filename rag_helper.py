@@ -71,12 +71,14 @@ class RAGBase:
         return self.prompt_template.format(question=query, context=context)
 
     def llm(self, prompt):
+        input_messages = [
+            {"role": "developer", "content": self.instructions},
+            {"role": "user", "content": prompt}
+        ]
+
         response = self.llm_client.chat.completions.create(
             model=self.model,
-            messages=[
-                {"role": "system", "content": self.instructions},
-                {"role": "user", "content": prompt},
-            ],
+            messages=input_messages,
             temperature=0.0,
         )
         return response.choices[0].message.content
