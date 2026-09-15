@@ -75,9 +75,9 @@ def load_sec_data(company_name):
 
             documents.append({
                 "id": doc_id,
-                "text": chunk,
+                "company": company_name,
                 "section": item["section"],
-                "company": company_name
+                "text": chunk,
             })
 
     return documents
